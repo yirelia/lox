@@ -1,4 +1,3 @@
-
 import { Lox } from "./lox.ts";
-const source = `Var name = "Lox";`
+const source = `1 == 1 + 2 * 3;`;
 Lox.run(source);

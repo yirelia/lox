@@ -1,6 +1,6 @@
 import { Token } from "./token";
 export abstract class Expr {
-  constructor() {}
+  constructor() { }
   abstract accept(visitor: Visitor): any;
 }
 export class Assign extends Expr {
@@ -67,11 +67,11 @@ export class Unary extends Expr {
   }
 }
 export abstract class Visitor {
-  visitAssignExpr(expr: Assign) {}
-  visitBinaryExpr(expr: Binary) {}
-  visitGroupingExpr(expr: Grouping) {}
-  visitLiteralExpr(expr: Literal) {}
-  visitUnaryExpr(expr: Unary) {}
+  abstract visitAssignExpr(expr: Assign): any;
+  abstract visitBinaryExpr(expr: Binary): any;
+  abstract visitGroupingExpr(expr: Grouping): any;
+  abstract visitLiteralExpr(expr: Literal): any;
+  abstract visitUnaryExpr(expr: Unary): any;
 }
 
 export default {

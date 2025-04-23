@@ -1,13 +1,18 @@
 import { AstPrinter } from "./ast-printer.ts";
 import { Expr } from "./expr.ts";
+import { Interperter } from "./interpreter.js";
 import { Parser } from "./parser.ts";
+import { RuntimeError } from "./runtimerror.ts";
 import { Scanner } from "./scanner.ts";
 import { TokenType } from "./token-type.ts";
 import { Token } from "./token.ts";
 
 export class Lox {
   static hadError: boolean = false;
-  public static main(args: string[]): void {}
+  static hadRuntimeError = false
+
+  static interpreter = new Interperter()
+  public static main(args: string[]): void { }
 
   public static run(source: string) {
     const scanner = new Scanner(source);
@@ -17,6 +22,7 @@ export class Lox {
     if (this.hadError) {
       return;
     }
+    this.interpreter.interperter(expression)
     console.log(new AstPrinter().print(expression));
   }
 
@@ -35,5 +41,11 @@ export class Lox {
     } else {
       this.report(token.line, ` at '${token.lexeme}'`, message);
     }
+  }
+
+  static runtimeError(error: RuntimeError) {
+
+    console.error(error.message + `\n[line ${error.token.line} ]`)
+    this.hadRuntimeError = true;
   }
 }

@@ -1,9 +1,12 @@
-import { Binary, Expr, Grouping, Literal, Unary, Visitor } from "./expr";
+import { Assign, Binary, Expr, Grouping, Literal, Unary, Visitor } from "./expr";
 import { Token } from "./token";
 import { TokenType } from "./token-type";
 
 
 export class AstPrinter extends Visitor {
+  visitAssignExpr(expr: Assign) {
+    throw new Error("Method not implemented.");
+  }
 
   print(expr: Expr) {
     return expr.accept(this as unknown as Visitor);

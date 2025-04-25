@@ -1,4 +1,5 @@
 import { Assign, Binary, Expr, Grouping, Literal, Unary, Visitor } from "./expr";
+import { Lox } from "./lox";
 import { RuntimeError } from "./runtimerror";
 import { Token } from "./token";
 import { TokenType } from "./token-type";
@@ -13,7 +14,7 @@ export class Interperter extends Visitor {
             const value = this.evaluate(expression)
             console.log(this.stringify(value))
         } catch (error) {
-
+            Lox.runtimeError(error as RuntimeError)
         }
     }
 
@@ -23,11 +24,11 @@ export class Interperter extends Visitor {
     }
 
 
-    visitGroupingExpr(expr: Grouping) {
+    override visitGroupingExpr(expr: Grouping) {
         return this.evaluate(expr.expression);
     }
 
-    visitUnaryExpr(expr: Unary) {
+    override visitUnaryExpr(expr: Unary) {
         const right = this.evaluate(expr.right);
         switch (expr.operator.type) {
             case TokenType.MINUS:
@@ -39,7 +40,7 @@ export class Interperter extends Visitor {
         return null;
     }
 
-    visitBinaryExpr(expr: Binary) {
+    override visitBinaryExpr(expr: Binary) {
         const left = this.evaluate(expr.left);
         const right = this.evaluate(expr.right);
         switch (expr.operator.type) {
@@ -85,7 +86,7 @@ export class Interperter extends Visitor {
         return null;
     }
 
-    visitAssignExpr(expr: Assign) {
+    override  visitAssignExpr(expr: Assign) {
         throw new Error(`not implments`)
     }
 

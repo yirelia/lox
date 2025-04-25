@@ -1,4 +1,3 @@
-import { AstPrinter } from "./ast-printer.ts";
 import { Expr } from "./expr.ts";
 import { Interperter } from "./interpreter.js";
 import { Parser } from "./parser.ts";
@@ -23,7 +22,7 @@ export class Lox {
       return;
     }
     this.interpreter.interperter(expression)
-    console.log(new AstPrinter().print(expression));
+    // console.log(new AstPrinter().print(expression));
   }
 
   static error(line: number, message: string): void {

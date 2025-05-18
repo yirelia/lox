@@ -1,30 +1,28 @@
-
-import path from "path";
 import fs from "fs";
+import path from "path";
 
 class Writer {
   #buffer = [];
 
   println(message, indent) {
-
     if (message != null) {
-
-        if (indent != null)
-            this.write(" ".repeat(indent));
-        this.write(message);
-
+      if (indent != null) this.write(" ".repeat(indent));
+      this.write(message);
     }
 
     this.write("\n");
-
-}
-
-  toString() {
-      return this.#buffer.join("");
   }
 
-   write(message) {
-      this.#buffer.push(message);
+  toString() {
+    return this.#buffer.join("");
+  }
+
+  write(message) {
+    this.#buffer.push(message);
+  }
+
+  reset() {
+    this.#buffer = [];
   }
 }
 
@@ -44,23 +42,28 @@ class GenerateAst {
       "Literal  | value: any",
       "Unary    | operator: Token, right: Expr",
     ]);
+
+    writer.reset();
+    this.defineAst(outputDir, "Stmt", [
+      "Expression | expression: Expr",
+      "Print | expression: Expr",
+    ]);
   }
 
   static defineAst(outputDir, baseName, types) {
     const filepath = path.join(outputDir, `${baseName}.ts`);
-    writer.println(`import { Token } from "../token";`);
-    writer.println(`abstract class ${baseName} { constructor() { }`);
-    writer.println(`abstract accept(visitor: Visitor);`);
-    writer.println(`};`)
+    writer.println(`import { Token } from "./token";`);
+    writer.println(`export abstract class ${baseName} { constructor() { }`);
+    writer.println(`abstract accept(visitor: Visitor) :any;`);
+    writer.println(`};`);
 
-    for ( const type of types) {
+    for (const type of types) {
       const className = type.split("|")[0].trim();
-      const fields = type.split("|")[1].trim(); 
+      const fields = type.split("|")[1].trim();
       this.defineType(writer, baseName, className, fields);
     }
 
     this.defineVisitor(writer, baseName, types);
-
 
     fs.writeFile(filepath, writer.toString(), "utf8", (err) => {
       if (err) {
@@ -74,8 +77,9 @@ class GenerateAst {
   static defineType(writer, baseName, className, fieldList) {
     const fields = fieldList.split(",");
     console.log(fields);
-    writer.println(" export class " + className + " extends " +
-    baseName + " {");
+    writer.println(
+      " export class " + className + " extends " + baseName + " {"
+    );
     for (const field of fields) {
       writer.println("public " + field + ";");
     }
@@ -91,23 +95,29 @@ class GenerateAst {
 
     writer.println();
     writer.println("   override accept(visitor: Visitor ) {");
-    writer.println("      return visitor.visit" +
-        className + baseName + "(this);");
+    writer.println(
+      "      return visitor.visit" + className + baseName + "(this);"
+    );
     writer.println("    }");
 
-
     writer.println(" }");
-
   }
 
   static defineVisitor(writer, baseName, types) {
     writer.println("  export abstract class Visitor{");
 
-    for (const  type of types) {
+    for (const type of types) {
       const typeName = type.split("|")[0].trim();
-      writer.println("    visit" + typeName + baseName + "(" +
-        baseName.toLowerCase() + ": " +
-          typeName + ") {};");
+      writer.println(
+        "    visit" +
+          typeName +
+          baseName +
+          "(" +
+          baseName.toLowerCase() +
+          ": " +
+          typeName +
+          ") {};"
+      );
     }
 
     writer.println("  }");

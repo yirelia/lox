@@ -1,3 +1,5 @@
-import { Lox } from "./lox.ts";
-const source = `1 + "1";`;
+import { Lox } from "./lox";
+const source = `print "one";
+print true;
+print 2 + 1;`;
 Lox.run(source);

@@ -1,8 +1,13 @@
 import { Token } from "./token";
-export abstract class Expr {
-  constructor() { }
+
+export interface Stmt {
+  accept(visitor: Visitor): any;
+}
+
+export abstract class Expr implements Stmt {
   abstract accept(visitor: Visitor): any;
 }
+
 export class Assign extends Expr {
   public name: Token;
   public value: Expr;
@@ -66,20 +71,35 @@ export class Unary extends Expr {
     return visitor.visitUnaryExpr(this);
   }
 }
-export abstract class Visitor {
-  abstract visitAssignExpr(expr: Assign): any;
-  abstract visitBinaryExpr(expr: Binary): any;
-  abstract visitGroupingExpr(expr: Grouping): any;
-  abstract visitLiteralExpr(expr: Literal): any;
-  abstract visitUnaryExpr(expr: Unary): any;
+export interface Visitor {
+  visitAssignExpr(expr: Assign): any;
+  visitBinaryExpr(expr: Binary): any;
+  visitGroupingExpr(expr: Grouping): any;
+  visitLiteralExpr(expr: Literal): any;
+  visitUnaryExpr(expr: Unary): any;
 }
 
-export default {
-  Expr,
-  Assign,
-  Binary,
-  Grouping,
-  Literal,
-  Unary,
-  Visitor,
+export class Expression implements Stmt {
+  public expression: Expr;
+  constructor(expression: Expr) {
+    this.expression = expression;
+  }
+
+  accept(visitor: Visitor) {
+    return visitor.visitExpressionStmt(this);
+  }
+}
+export class Print implements Stmt {
+  public expression: Expr;
+  constructor(expression: Expr) {
+    this.expression = expression;
+  }
+
+  accept(visitor: Visitor) {
+    return visitor.visitPrintStmt(this);
+  }
+}
+export interface Visitor {
+  visitExpressionStmt(stmt: Expression): any;
+  visitPrintStmt(stmt: Print): any;
 }

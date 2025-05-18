@@ -1,5 +1,7 @@
-import { Binary, Expr, Grouping, Literal, Unary } from "./expr";
+import { PaserError } from "./error";
 import { Lox } from "./lox";
+import * as Stmt from "./Stmt";
+import { Binary, Expr, Grouping, Literal, Unary } from "./Stmt";
 import { Token } from "./token";
 import { TokenType } from "./token-type";
 
@@ -23,6 +25,24 @@ export class Parser {
 
   private expression(): Expr {
     return this.equality();
+  }
+
+  private statement(): Stmt.Stmt {
+    if (this.match(TokenType.PRINT)) {
+      return this.printStatement();
+    }
+    return this.expressionStatement();
+  }
+
+  private printStatement(): Stmt.Print {
+    const value: Expr = this.expression();
+    this.consume(TokenType.SEMICOLON, "Expect ';' after value.");
+    return new Stmt.Print(value);
+  }
+  private expressionStatement(): Stmt.Expression {
+    const expr: Expr = this.expression();
+    this.consume(TokenType.SEMICOLON, "Expect ';' after expression.");
+    return new Stmt.Expression(expr);
   }
 
   private equality(): Expr {
@@ -182,18 +202,15 @@ export class Parser {
     this.advance();
   }
 
-  parse(): Expr | null {
+  parse(): Stmt.Stmt[] {
     try {
-      return this.expression();
+      const statements: Stmt.Stmt[] = [];
+      while (!this.isAtEnd()) {
+        statements.push(this.statement());
+      }
+      return statements;
     } catch (error) {
-      return null;
+      return [];
     }
-  }
-}
-
-class PaserError extends Error {
-  constructor() {
-    super("Parse Error");
-    this.name = "PaserError";
   }
 }

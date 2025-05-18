@@ -1,27 +1,27 @@
-import { Expr } from "./expr.ts";
-import { Interperter } from "./interpreter.js";
-import { Parser } from "./parser.ts";
-import { RuntimeError } from "./runtimerror.ts";
-import { Scanner } from "./scanner.ts";
-import { TokenType } from "./token-type.ts";
-import { Token } from "./token.ts";
+import { RuntimeError } from "./error";
+import { Interperter } from "./interpreter";
+import { Parser } from "./parser";
+import { Scanner } from "./scanner";
+import { Stmt } from "./Stmt";
+import { Token } from "./token";
+import { TokenType } from "./token-type";
 
 export class Lox {
   static hadError: boolean = false;
-  static hadRuntimeError = false
+  static hadRuntimeError = false;
 
-  static interpreter = new Interperter()
-  public static main(args: string[]): void { }
+  static interpreter = new Interperter();
+  public static main(args: string[]): void {}
 
   public static run(source: string) {
     const scanner = new Scanner(source);
     const tokens = scanner.scanTokens();
     const parser: Parser = new Parser(tokens);
-    const expression: Expr = parser.parse()!;
+    const statements: Stmt[] = parser.parse()!;
     if (this.hadError) {
       return;
     }
-    this.interpreter.interperter(expression)
+    this.interpreter.interperter(statements);
     // console.log(new AstPrinter().print(expression));
   }
 
@@ -43,8 +43,7 @@ export class Lox {
   }
 
   static runtimeError(error: RuntimeError) {
-
-    console.error(error.message + `\n[line ${error.token.line} ]`)
+    console.error(error.message + `\n[line ${error.token.line} ]`);
     this.hadRuntimeError = true;
   }
 }

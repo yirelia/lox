@@ -1,16 +1,17 @@
+import { Environment } from "./Environment ";
 import { RuntimeError } from "./error/runtimerror";
 import { Lox } from "./lox";
 import * as Stmt from "./Stmt";
 import { Assign, Binary, Grouping, Literal, Unary, Visitor } from "./Stmt";
 import { Token } from "./token";
 import { TokenType } from "./token-type";
-export class Interperter implements Visitor, Stmt.Visitor {
-  constructor() {}
+export class Interperter implements Visitor {
+  constructor() { }
+
+  private environment = new Environment()
 
   interperter(stmts: Stmt.Stmt[]) {
     try {
-      // const value = this.evaluate(expression);
-      // console.log(this.stringify(value
       for (const stmt of stmts) {
         this.evaluate(stmt);
       }
@@ -27,6 +28,21 @@ export class Interperter implements Visitor, Stmt.Visitor {
     const value = this.evaluate(stmt.expression);
     console.log(this.stringify(value));
     return null;
+  }
+
+  visitVarStmt(stmt: Stmt.Var) {
+    let value: any = null;
+    if (stmt.initializer) {
+      value = this.evaluate(stmt.initializer);
+    }
+    this.environment.define(stmt.name.lexeme, value);
+    return null;
+  }
+
+  visitAssignExpr(expr: Assign) {
+    const value = this.evaluate(expr.value);
+    this.environment.assign(expr.name, value);
+    return value
   }
 
   visitLiteralExpr(expr: Literal) {
@@ -47,6 +63,10 @@ export class Interperter implements Visitor, Stmt.Visitor {
         return !this.isTruthy(right);
     }
     return null;
+  }
+
+  visitVariableExpr(expr: Stmt.Variable) {
+    return this.environment.get(expr.name);
   }
 
   visitBinaryExpr(expr: Binary) {
@@ -96,9 +116,6 @@ export class Interperter implements Visitor, Stmt.Visitor {
     return null;
   }
 
-  visitAssignExpr(expr: Assign) {
-    throw new Error(`not implments`);
-  }
 
   private checkNumberOperands(operator: Token, left: any, right: any) {
     if (typeof left === "number" && typeof right === "number") {
@@ -144,4 +161,23 @@ export class Interperter implements Visitor, Stmt.Visitor {
   private evaluate(stmt: Stmt.Stmt) {
     return stmt.accept(this);
   }
+
+  private evaluateBlock(statements: Stmt.Stmt[], environment: Environment) {
+    const previous = this.environment;
+    try {
+      this.environment = environment
+      for (const stmt of statements) {
+        this.evaluate(stmt);
+      }
+    } finally {
+      this.environment = previous
+    }
+  }
+
+  visitBlockStmt(stmt: Stmt.Block) {
+    this.evaluateBlock(stmt.statements, new Environment(this.environment));
+    return null;
+  }
+
+
 }

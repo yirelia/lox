@@ -71,6 +71,20 @@ export class Unary extends Expr {
     }
 }
 
+
+export class Variable extends Expr {
+    public name: Token;
+    constructor(name: Token) {
+        super();
+        this.name = name;
+    }
+
+    override accept(visitor: Visitor) {
+        return visitor.visitVariableExpr(this);
+    }
+}
+
+
 export class Expression implements Stmt {
     public expression: Expr;
     constructor(expression: Expr) {
@@ -79,5 +93,31 @@ export class Expression implements Stmt {
 
     accept(visitor: Visitor) {
         return visitor.visitExpressionStmt(this);
+    }
+}
+
+
+export class Var implements Stmt {
+    public name: Token;
+    public initializer: Expr | null;
+    constructor(name: Token, initializer: Expr | null) {
+        this.name = name;
+        this.initializer = initializer;
+    }
+
+    accept(visitor: Visitor) {
+        return visitor.visitVarStmt(this);
+    }
+}
+
+
+export class Block implements Stmt {
+    public statements: Stmt[];
+    constructor(statements: Stmt[]) {
+        this.statements = statements;
+    }
+
+    accept(visitor: Visitor) {
+        return visitor.visitBlockStmt(this);
     }
 }

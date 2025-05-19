@@ -153,3 +153,16 @@ export class If implements Stmt {
         return visitor.visitIfStmt(this);
     }
 }
+
+export class While implements Stmt {
+    public condition: Expr;
+    public body: Stmt;
+    constructor(condition: Expr, body: Stmt) {
+        this.condition = condition;
+        this.body = body;
+    }
+
+    accept(visitor: Visitor) {
+        return visitor.visitWhileStmt(this);
+    }
+}

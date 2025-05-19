@@ -199,4 +199,11 @@ export class Interperter implements Visitor {
     return null;
   }
 
+  visitWhileStmt(stmt: Stmt.While) {
+    while (this.isTruthy(this.evaluate(stmt.condition))) {
+      this.evaluate(stmt.body);
+    }
+    return null;
+  }
+
 }

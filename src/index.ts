@@ -1,6 +1,13 @@
 import { Lox } from "./lox";
 
-let source = `print "hi" or 2; // "hi".
-print nil or "yes"; // "yes".`
+let source = `var a = 0;
+var temp;
+
+for (var b = 1; a < 10000; b = temp + b) {
+  print temp;
+  print a;
+  temp = a;
+  a = b;
+}`
 
 Lox.run(source)

@@ -1,10 +1,10 @@
-import { test , expect} from "vitest";
+import { expect, test } from "vitest";
+import { AstPrinter } from "../ast-printer";
 import Expr from "../expr";
 import { Token } from "../token";
 import { TokenType } from "../token-type";
-import { AstPrinter } from "../ast-printer";
 
-test(`expr`,() => {
+test(`expr`, () => {
     const printer = new AstPrinter();
     const expression = new Expr.Binary(
         new Expr.Unary(

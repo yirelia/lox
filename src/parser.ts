@@ -1,7 +1,7 @@
 import { PaserError } from "./error";
 import { Lox } from "./lox";
-import * as Stmt from "./Stmt";
-import { Binary, Expr, Grouping, Literal, Unary } from "./Stmt";
+import * as Stmt from "./stmt";
+import { Binary, Expr, Grouping, Literal, Unary } from "./stmt";
 import { Token } from "./token";
 import { TokenType } from "./token-type";
 

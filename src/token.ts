@@ -5,7 +5,7 @@ export class Token {
     public lexeme: string,
     public literal: any,
     public line: number
-  ) {}
+  ) { }
 
   toString(): string {
     return `${this.type} ${this.lexeme} ${this.literal}`;

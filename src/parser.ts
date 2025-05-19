@@ -25,12 +25,12 @@ export class Parser {
 
   private expression(): Expr {
     return this.assignment()
-    // return this.equality();
   }
 
 
   private assignment(): Expr {
-    const expr: Expr = this.equality();
+    const expr: Expr = this.or();
+
     if (this.match(TokenType.EQUAL)) {
       const equals: Token = this.previous();
       const value: Expr = this.assignment();
@@ -40,6 +40,27 @@ export class Parser {
         return new Stmt.Assign(name, value);
       }
       this.error(equals, "Invalid assignment target.");
+    }
+    return expr;
+  }
+
+
+  private or() {
+    let expr: Expr = this.and();
+    while (this.match(TokenType.OR)) {
+      const operator: Token = this.previous();
+      const right: Expr = this.and();
+      expr = new Stmt.Logical(expr, operator, right);
+    }
+    return expr;
+  }
+
+  private and() {
+    let expr: Expr = this.equality();
+    while (this.match(TokenType.AND)) {
+      const operator: Token = this.previous();
+      const right: Expr = this.equality();
+      expr = new Stmt.Logical(expr, operator, right);
     }
     return expr;
   }
@@ -58,13 +79,28 @@ export class Parser {
   }
 
   private statement(): Stmt.Stmt {
+    if (this.match(TokenType.IF)) {
+      return this.ifStatement();
+    }
     if (this.match(TokenType.PRINT)) {
       return this.printStatement();
     }
     if (this.match(TokenType.LEFT_BRACE)) {
       return new Stmt.Block(this.block());
     }
+
     return this.expressionStatement();
+  }
+
+  private ifStatement(): Stmt.If {
+    this.consume(TokenType.LEFT_PAREN, "Expect '(' after 'if'.");
+    const condition: Expr = this.expression();
+    const thenBranch: Stmt.Stmt = this.statement();
+    let elseBranch: Stmt.Stmt | null = null;
+    if (this.match(TokenType.ELSE)) {
+      elseBranch = this.statement();
+    }
+    return new Stmt.If(condition, thenBranch, elseBranch);
   }
 
   private printStatement(): Stmt.Print {

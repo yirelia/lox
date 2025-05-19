@@ -84,6 +84,22 @@ export class Variable extends Expr {
     }
 }
 
+export class Logical extends Expr {
+    public left: Expr;
+    public operator: Token;
+    public right: Expr;
+    constructor(left: Expr, operator: Token, right: Expr) {
+        super();
+        this.left = left;
+        this.operator = operator;
+        this.right = right;
+    }
+
+    override accept(visitor: Visitor) {
+        return visitor.visitLogicalExpr(this);
+    }
+}
+
 
 export class Expression implements Stmt {
     public expression: Expr;
@@ -119,5 +135,21 @@ export class Block implements Stmt {
 
     accept(visitor: Visitor) {
         return visitor.visitBlockStmt(this);
+    }
+}
+
+
+export class If implements Stmt {
+    public condition: Expr;
+    public thenBranch: Stmt;
+    public elseBranch: Stmt | null;
+    constructor(condition: Expr, thenBranch: Stmt, elseBranch: Stmt | null) {
+        this.condition = condition;
+        this.thenBranch = thenBranch;
+        this.elseBranch = elseBranch;
+    }
+
+    accept(visitor: Visitor) {
+        return visitor.visitIfStmt(this);
     }
 }

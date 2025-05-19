@@ -49,6 +49,16 @@ export class Interperter implements Visitor {
     return expr.value;
   }
 
+  visitLogicalExpr(expr: Stmt.Logical) {
+    const left = this.evaluate(expr.left);
+    if (expr.operator.type === TokenType.OR) {
+      if (this.isTruthy(left)) return left;
+    } else {
+      if (!this.isTruthy(left)) return left;
+    }
+    return this.evaluate(expr.right);
+  }
+
   visitGroupingExpr(expr: Grouping) {
     return this.evaluate(expr.expression);
   }
@@ -179,5 +189,14 @@ export class Interperter implements Visitor {
     return null;
   }
 
+
+  visitIfStmt(stmt: Stmt.If) {
+    if (this.isTruthy(this.evaluate(stmt.condition))) {
+      this.evaluate(stmt.thenBranch);
+    } else if (stmt.elseBranch) {
+      this.evaluate(stmt.elseBranch);
+    }
+    return null;
+  }
 
 }

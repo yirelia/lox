@@ -101,6 +101,23 @@ export class Logical extends Expr {
 }
 
 
+export class Call extends Expr {
+    public callee: Expr;
+    public paren: Token;
+    public args: Expr[];
+    constructor(callee: Expr, paren: Token, args: Expr[]) {
+        super();
+        this.callee = callee;
+        this.paren = paren;
+        this.args = args;
+    }
+
+    override accept(visitor: Visitor) {
+        return visitor.visitCallExpr(this);
+    }
+}
+
+
 export class Expression implements Stmt {
     public expression: Expr;
     constructor(expression: Expr) {

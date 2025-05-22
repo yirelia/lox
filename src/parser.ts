@@ -67,6 +67,9 @@ export class Parser {
 
   private declaration() {
     try {
+      if (this.match(TokenType.FUN)) {
+        return this.func('function')
+      }
       if (this.match(TokenType.VAR)) {
         return this.varDeclaration();
       }
@@ -175,6 +178,25 @@ export class Parser {
     return new Stmt.Expression(expr);
   }
 
+  private func(kind: string) {
+    let name = this.consume(TokenType.IDENTIFIER, `Expect ${kind} name.`);
+    this.consume(TokenType.LEFT_PAREN, `Expect '(' after ${kind} name.`);
+    const params: Token[] = [];
+    if (!this.check(TokenType.RIGHT_PAREN)) {
+      do {
+        if (params.length >= 255) {
+          this.error(this.peek(), "Cannot have more than 255 parameters.");
+        }
+        params.push(this.consume(TokenType.IDENTIFIER, "Expect parameter name."));
+      } while (this.match(TokenType.COMMA));
+    }
+    this.consume(TokenType.RIGHT_PAREN, "Expect ')' after parameters.");
+
+    const body = this.block();
+    return new Stmt.Function(name, params, body);
+
+  }
+
   private block() {
     const statements: Stmt.Stmt[] = [];
     while (!this.check(TokenType.RIGHT_BRACE) && !this.isAtEnd()) {
@@ -258,7 +280,34 @@ export class Parser {
       const right: Expr = this.unary();
       return new Unary(operator, right);
     }
-    return this.primary();
+    return this.call()
+  }
+
+
+  private call(): Expr {
+    let expr: Expr = this.primary();
+    while (true) {
+      if (this.match(TokenType.LEFT_PAREN)) {
+        expr = this.finishCall(expr);
+      } else {
+        break;
+      }
+    }
+    return expr;
+  }
+
+  private finishCall(callee: Expr): Expr {
+    let args: Expr[] = [];
+    if (!this.check(TokenType.RIGHT_PAREN)) {
+      do {
+        if (args.length >= 255) {
+          this.error(this.peek(), "Cannot have more than 255 arguments.");
+        }
+        args.push(this.expression());
+      } while (this.match(TokenType.COMMA));
+    }
+    const paren: Token = this.consume(TokenType.RIGHT_PAREN, "Expect ')' after arguments.");
+    return new Stmt.Call(callee, paren, args);
   }
 
   private primary(): Expr {

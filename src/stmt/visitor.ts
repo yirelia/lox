@@ -1,4 +1,4 @@
-import { Assign, Binary, Block, Expression, Grouping, If, Literal, Logical, Unary, Var, Variable, While } from "./expression";
+import { Assign, Binary, Block, Call, Expression, Grouping, If, Literal, Logical, Unary, Var, Variable, While } from "./expression";
 import { Print } from "./print";
 
 export interface Visitor {
@@ -10,6 +10,7 @@ export interface Visitor {
 
     visitVariableExpr(expr: Variable): any;
     visitLogicalExpr(expr: Logical): any
+    visitCallExpr(expr: Call): any;
 
     // 语句
     visitExpressionStmt(stmt: Expression): any;
@@ -21,4 +22,5 @@ export interface Visitor {
     // visitReturnStmt(stmt: Return): any;
     visitVarStmt(stmt: Var): any;
     visitWhileStmt(stmt: While): any;
+
 }

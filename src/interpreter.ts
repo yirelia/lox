@@ -1,14 +1,21 @@
-import { Environment } from "./Environment ";
-import { RuntimeError } from "./error/runtimerror";
-import { Lox } from "./lox";
+import { Environment } from "./Environment";
 import * as Stmt from "./Stmt";
 import { Assign, Binary, Grouping, Literal, Unary, Visitor } from "./Stmt";
+import { RuntimeError } from "./error/runtimerror";
+import { Lox } from "./lox";
+import { isLoxCallable } from "./loxcallable";
 import { Token } from "./token";
 import { TokenType } from "./token-type";
-export class Interperter implements Visitor {
-  constructor() { }
+export class Interpreter implements Visitor {
+  constructor() {
+    this.globals.define('clock', () => {
+      return Date.now() / 1000;
+    })
+  }
 
   private environment = new Environment()
+  private globals = new Environment();
+
 
   interperter(stmts: Stmt.Stmt[]) {
     try {
@@ -124,6 +131,25 @@ export class Interperter implements Visitor {
         return Number(left) / Number(right);
     }
     return null;
+  }
+
+  visitCallExpr(expr: Stmt.Call) {
+    const callee = this.evaluate(expr.callee);
+    const args = [];
+    for (const arg of expr.args) {
+      args.push(this.evaluate(arg));
+    }
+    if (!(isLoxCallable(callee))) {
+      throw new RuntimeError(expr.paren, "Can only call functions and classes.");
+    }
+    const functionCallee = callee;
+    if (args.length !== functionCallee.arity()) {
+      throw new RuntimeError(
+        expr.paren,
+        `Expected ${functionCallee.arity()} arguments but got ${args.length}.`
+      );
+    }
+    return functionCallee.call(this, args);
   }
 
 

@@ -1,5 +1,5 @@
 import { RuntimeError } from "./error";
-import { Interperter } from "./interpreter";
+import { Interpreter } from "./interpreter";
 import { Parser } from "./parser";
 import { Scanner } from "./scanner";
 import { Stmt } from "./Stmt";
@@ -10,8 +10,8 @@ export class Lox {
   static hadError: boolean = false;
   static hadRuntimeError = false;
 
-  static interpreter = new Interperter();
-  public static main(args: string[]): void {}
+  static interpreter = new Interpreter();
+  public static main(args: string[]): void { }
 
   public static run(source: string) {
     const scanner = new Scanner(source);
@@ -22,7 +22,6 @@ export class Lox {
       return;
     }
     this.interpreter.interperter(statements);
-    // console.log(new AstPrinter().print(expression));
   }
 
   static error(line: number, message: string): void {
